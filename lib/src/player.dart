@@ -8,10 +8,12 @@ import 'package:mdu1_player/src/mdu1_controller.dart';
 class Mdu1Player extends StatefulWidget {
   final Mdu1Controller controller;
   final bool? useAndroidViewSurface;
+  final bool enableCaptions;
 
   const Mdu1Player({
     Key? key,
     required this.controller,
+    required this.enableCaptions,
     this.useAndroidViewSurface = false,
   }) : super(key: key);
 
@@ -78,7 +80,9 @@ class _Mdu1PlayerState extends State<Mdu1Player> with WidgetsBindingObserver {
                 id: params.id,
                 viewType: 'mdu1_player',
                 layoutDirection: TextDirection.ltr,
-                creationParams: <String, dynamic>{},
+                creationParams: <String, dynamic>{
+                  'captions': widget.enableCaptions,
+                },
                 creationParamsCodec: const StandardMessageCodec(),
                 onFocus: () => params.onFocusChanged(true),
               );
@@ -93,7 +97,9 @@ class _Mdu1PlayerState extends State<Mdu1Player> with WidgetsBindingObserver {
         : AndroidView(
             viewType: 'mdu1_player',
             onPlatformViewCreated: _onPlatformViewCreated,
-            creationParams: const <String, dynamic>{},
+            creationParams: <String, dynamic>{
+              'captions': widget.enableCaptions,
+            },
             creationParamsCodec: const StandardMessageCodec(),
           );
   }

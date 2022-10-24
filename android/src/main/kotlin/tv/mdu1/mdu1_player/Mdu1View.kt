@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -15,13 +16,15 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.view.TextureRegistry
 
-class Mdu1View(context: Context, messenger: BinaryMessenger, id: Int, textureRegistry: TextureRegistry):PlatformView, MethodChannel.MethodCallHandler {
+class Mdu1View(context: Context, creationParams: Map<String?, Any?>?, messenger: BinaryMessenger, id: Int, textureRegistry: TextureRegistry):PlatformView, MethodChannel.MethodCallHandler {
     private val methodChannel: MethodChannel = MethodChannel(messenger, "mdu1_player_$id")
     lateinit var activityLifecycleCallbacks: Application.ActivityLifecycleCallbacks
     private var videoView: Mdu1UIView
     private var eventChannel: EventChannel
+    private var captionsEnabled: Boolean = false
 
     init {
+        captionsEnabled = creationParams?.get("captions").toString().toBoolean()
         methodChannel.setMethodCallHandler(this)
         eventChannel = EventChannel(messenger, "mdu1_player/video_events")
         videoView = Mdu1UIView(context, textureRegistry, eventChannel)
@@ -44,7 +47,7 @@ class Mdu1View(context: Context, messenger: BinaryMessenger, id: Int, textureReg
         when (call.method) {
             "init" -> {
                 val url: String? = call.argument("url")
-                videoView.initializePlayer(url!!)
+                videoView.initializePlayer(url!!, captionsEnabled)
             }
             "updateChannel" -> {
                 val url: String? = call.argument("url")
@@ -156,7 +159,7 @@ class Mdu1View(context: Context, messenger: BinaryMessenger, id: Int, textureReg
     }
 
     private fun onStart() {
-        videoView.onStart()
+        videoView.onStart(captionsEnabled)
     }
 
     private fun onStop() {

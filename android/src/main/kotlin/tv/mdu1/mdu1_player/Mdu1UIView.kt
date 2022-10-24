@@ -3,6 +3,7 @@ package tv.mdu1.mdu1_player
 import android.content.Context
 import android.net.Uri
 import android.util.AttributeSet
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.google.android.exoplayer2.*
@@ -153,7 +154,7 @@ class Mdu1UIView : FrameLayout, Player.Listener {
         }
     }
 
-    fun initializePlayer(url: String) {
+    fun initializePlayer(url: String, enableCaptions: Boolean?) {
         videoUrl = url
         val mediaSource = buildMediaSource(videoUrl, buildDataSourceFactory(context))
         mediaSource?.let {
@@ -165,6 +166,20 @@ class Mdu1UIView : FrameLayout, Player.Listener {
             mdu1Player.player = player
         }
         mdu1Player.onResume()
+
+        if(enableCaptions == false) {
+            player!!.trackSelectionParameters = player!!.trackSelectionParameters
+                .buildUpon()
+                .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
+                .setPreferredTextLanguage("")
+                .build()
+        } else if (enableCaptions == true) {
+            player!!.trackSelectionParameters = player!!.trackSelectionParameters
+                .buildUpon()
+                .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
+                .setPreferredTextLanguage("eng")
+                .build() 
+        }
     }
 
     fun getTracks(index: Int): ArrayList<MutableMap<String, Any>> {
@@ -238,9 +253,6 @@ class Mdu1UIView : FrameLayout, Player.Listener {
                     }
                     event.add(data)
                 } else if (trackFormat.sampleMimeType!!.contains("text") && index == C.TRACK_TYPE_TEXT) {
-                    // if(trackFormat.label.toString().startsWith("und t")) {
-                    //     continue;
-                    // }
                     val data: MutableMap<String, Any> = HashMap();
                     data["name"] = trackFormat.label.toString()
                     data["isSelected"] = it.isSelected
@@ -317,8 +329,8 @@ class Mdu1UIView : FrameLayout, Player.Listener {
         player?.play()
     }
 
-    fun onStart() {
-        initializePlayer(videoUrl)
+    fun onStart(enableCaptions: Boolean?) {
+        initializePlayer(videoUrl, enableCaptions)
     }
 
     fun onStop() {
@@ -344,7 +356,6 @@ class Mdu1UIView : FrameLayout, Player.Listener {
 
     fun reset() {
         releasePlayer()
-        initializePlayer(videoUrl)
     }
 
     fun seekTo(millisecond: Double) {

@@ -9,7 +9,7 @@ import io.flutter.view.TextureRegistry
 
 class Mdu1ViewFactory(private val messenger: BinaryMessenger, private val textureRegistry: TextureRegistry):PlatformViewFactory(StandardMessageCodec.INSTANCE) {
     override fun create(context: Context?, viewId: Int, args: Any?): PlatformView {
-        val params = args as HashMap<*,*>
-        return Mdu1View(context!!, messenger, viewId, textureRegistry)
+        val params = args as HashMap<String?, Any?>
+        return Mdu1View(context!!, params, messenger, viewId, textureRegistry)
     }
 }
