@@ -167,18 +167,20 @@ class Mdu1UIView : FrameLayout, Player.Listener {
         }
         mdu1Player.onResume()
 
-        if(enableCaptions == false) {
-            player!!.trackSelectionParameters = player!!.trackSelectionParameters
-                .buildUpon()
-                .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
-                .setPreferredTextLanguage("")
-                .build()
-        } else if (enableCaptions == true) {
-            player!!.trackSelectionParameters = player!!.trackSelectionParameters
-                .buildUpon()
-                .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
-                .setPreferredTextLanguage("eng")
-                .build() 
+        if(player != null) {
+            if(enableCaptions == false) {
+                player!!.trackSelectionParameters = player!!.trackSelectionParameters
+                    .buildUpon()
+                    .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
+                    .setPreferredTextLanguage("")
+                    .build()
+            } else if (enableCaptions == true) {
+                player!!.trackSelectionParameters = player!!.trackSelectionParameters
+                    .buildUpon()
+                    .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
+                    .setPreferredTextLanguage("eng")
+                    .build()
+            }
         }
     }
 
@@ -203,7 +205,7 @@ class Mdu1UIView : FrameLayout, Player.Listener {
                         else -> {
                             var label = trackFormat.label;
                             if(label?.contains("und") == true) {
-                                label = "Undefined";
+                                label = label.replace("und", "Undefined")
                             } else if (label == null) {
                                 label = "";
                             }
@@ -238,7 +240,9 @@ class Mdu1UIView : FrameLayout, Player.Listener {
                         else -> {
                             var label = trackFormat.label;
                             if(label?.contains("und") == true) {
-                                label = "Undefined";
+                                label = label.replace("und", "Undefined")
+                            } else if (label == null) {
+                                label = "Undefined"
                             }
 
                             data["name"] = label.toString()
@@ -254,7 +258,24 @@ class Mdu1UIView : FrameLayout, Player.Listener {
                     event.add(data)
                 } else if (trackFormat.sampleMimeType!!.contains("text") && index == C.TRACK_TYPE_TEXT) {
                     val data: MutableMap<String, Any> = HashMap();
-                    data["name"] = trackFormat.label.toString()
+                    when (trackFormat.language) {
+                        "en" -> {
+                            data["name"] =  "English"
+                        }
+                        "es" -> {
+                            data["name"] =  "Spanish"
+                        }
+                        else -> {
+                            var label = trackFormat.label;
+                            if(label?.contains("und") == true) {
+                                label = label.replace("und", "Undefined")
+                            } else if (label == null) {
+                                label = "Undefined";
+                            }
+
+                            data["name"] = label.toString()
+                        }
+                    }
                     data["isSelected"] = it.isSelected
                     data["trackGroupIndex"] = trackGroupIndex
                     data["trackIndex"] = i
