@@ -189,6 +189,8 @@ class Mdu1UIView : FrameLayout, Player.Listener {
                             var label = trackFormat.label;
                             if(label?.contains("und") == true) {
                                 label = "Undefined";
+                            } else if (label == null) {
+                                label = "";
                             }
                             data["name"] =  label.toString() + " " + (if (trackFormat.channelCount > 1) "Stereo" else "Mono")
                         }
@@ -200,7 +202,7 @@ class Mdu1UIView : FrameLayout, Player.Listener {
                     event.add(data)
                 } else if (trackFormat.sampleMimeType!!.contains("video") && index == C.TRACK_TYPE_VIDEO) {
                     val data: MutableMap<String, Any> = HashMap();
-                    data["name"] = trackFormat.width.toString() + " x " + trackFormat.height.toString() + "   " + (trackFormat.bitrate / 1024 / 1024).toString() + " Mbps"
+                    data["name"] = trackFormat.width.toString() + " x " + trackFormat.height.toString() + "\t\t" + (trackFormat.bitrate / 1024 / 1024).toString() + " Mbps"
                     if(isAutoSelected) {
                         data["isSelected"] = false
                     } else {
