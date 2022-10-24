@@ -186,7 +186,11 @@ class Mdu1UIView : FrameLayout, Player.Listener {
                             data["name"] =  "Spanish " + (if (trackFormat.channelCount > 1) "Stereo" else "Mono")
                         }
                         else -> {
-                            data["name"] =  trackFormat.language + " " + (if (trackFormat.channelCount > 1) "Stereo" else "Mono")
+                            var label = trackFormat.label;
+                            if(label?.contains("und") == true) {
+                                label = "Undefined";
+                            }
+                            data["name"] =  label.toString() + " " + (if (trackFormat.channelCount > 1) "Stereo" else "Mono")
                         }
                     }
 
@@ -215,7 +219,12 @@ class Mdu1UIView : FrameLayout, Player.Listener {
                             data["name"] =  "Spanish"
                         }
                         else -> {
-                            data["name"] =  trackFormat.language.toString()
+                            var label = trackFormat.label;
+                            if(label?.contains("und") == true) {
+                                label = "Undefined";
+                            }
+
+                            data["name"] = label.toString()
                         }
                     }
                     data["isSelected"] = it.isSelected
@@ -227,9 +236,9 @@ class Mdu1UIView : FrameLayout, Player.Listener {
                     }
                     event.add(data)
                 } else if (trackFormat.sampleMimeType!!.contains("text") && index == C.TRACK_TYPE_TEXT) {
-                    if(trackFormat.label.toString().startsWith("und t")) {
-                        continue;
-                    }
+                    // if(trackFormat.label.toString().startsWith("und t")) {
+                    //     continue;
+                    // }
                     val data: MutableMap<String, Any> = HashMap();
                     data["name"] = trackFormat.label.toString()
                     data["isSelected"] = it.isSelected
