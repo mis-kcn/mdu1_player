@@ -205,7 +205,7 @@ class Mdu1UIView : FrameLayout, Player.Listener {
                         else -> {
                             var label = trackFormat.label;
                             if(label?.contains("und") == true) {
-                                label = label.replace("und", "Undefined")
+                                label = label.replace("und ", "Undefined ")
                             } else if (label == null) {
                                 label = "";
                             }
@@ -240,7 +240,7 @@ class Mdu1UIView : FrameLayout, Player.Listener {
                         else -> {
                             var label = trackFormat.label;
                             if(label?.contains("und") == true) {
-                                label = label.replace("und", "Undefined")
+                                label = label.replace("und ", "Undefined ")
                             } else if (label == null) {
                                 label = "Undefined"
                             }
@@ -268,7 +268,7 @@ class Mdu1UIView : FrameLayout, Player.Listener {
                         else -> {
                             var label = trackFormat.label;
                             if(label?.contains("und") == true) {
-                                label = label.replace("und", "Undefined")
+                                label = label.replace("und ", "Undefined ")
                             } else if (label == null) {
                                 label = "Undefined";
                             }
