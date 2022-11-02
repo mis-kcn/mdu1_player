@@ -135,15 +135,15 @@ class Mdu1View(context: Context, creationParams: Map<String?, Any?>?, messenger:
             }
 
             override fun onActivityResumed(activity: Activity) {
-                onStart()
+//                onPlay()
             }
 
             override fun onActivityPaused(activity: Activity) {
-                onPause()
+//                onPause()
             }
 
             override fun onActivityStopped(activity: Activity) {
-                onStop()
+//                onStop()
             }
 
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
@@ -156,6 +156,10 @@ class Mdu1View(context: Context, creationParams: Map<String?, Any?>?, messenger:
         }
 
         (context.applicationContext as Application).registerActivityLifecycleCallbacks(this.activityLifecycleCallbacks)
+    }
+
+    private fun onPlay() {
+        videoView.play()
     }
 
     private fun onStart() {

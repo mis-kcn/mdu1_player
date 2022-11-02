@@ -69,7 +69,7 @@ class Mdu1UIView : FrameLayout, Player.Listener {
         bandwidthMeter = DefaultBandwidthMeter.Builder(context).build()
         
         player = ExoPlayer.Builder(context).setTrackSelector(trackSelector).build()
-        player?.addAnalyticsListener(EventLogger(trackSelector))
+        // player?.addAnalyticsListener(EventLogger(trackSelector))
        
         eventChannel.setStreamHandler(
             object  : EventChannel.StreamHandler {
@@ -361,10 +361,10 @@ class Mdu1UIView : FrameLayout, Player.Listener {
 
     fun onPause() {
         mdu1Player.onPause()
-        releasePlayer()
     }
 
     fun onDestroy() {
+        releasePlayer()
     }
 
     fun play() {
