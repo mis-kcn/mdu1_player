@@ -282,7 +282,7 @@ class Mdu1UIView : FrameLayout, Player.Listener {
                     if(!hasCaptions) {
                         hasCaptions = it.isSelected
                     }
-                    event.add(data)
+                    // event.add(data)
                 }
             }
         }
