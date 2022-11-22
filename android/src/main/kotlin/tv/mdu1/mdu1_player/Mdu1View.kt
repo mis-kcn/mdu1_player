@@ -63,7 +63,7 @@ class Mdu1View(context: Context, creationParams: Map<String?, Any?>?, messenger:
                 dispose()
             }
             "play" -> {
-                videoView.play()
+                onPlay()
             }
             "stop" -> {
                 videoView.stop()

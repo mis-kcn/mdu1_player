@@ -360,7 +360,7 @@ class Mdu1UIView : FrameLayout, Player.Listener {
     }
 
     fun onPause() {
-        mdu1Player.onPause()
+        player?.pause()
     }
 
     fun onDestroy() {

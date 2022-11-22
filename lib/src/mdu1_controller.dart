@@ -41,22 +41,20 @@ class Mdu1Controller {
     });
   }
 
+  Future<void> pause() async {
+    return _channel?.invokeMethod<void>('pause');
+  }
+
+  Future<void> play() async {
+    return _channel?.invokeMethod<void>('play');
+  }
+
   Future<dynamic> _handleMethodCalls(MethodCall call) async {
     _controller.sink.add({
       'event': call.method,
       'data': call.arguments.toString(),
       'status': 'success'
     });
-
-    switch (call.method) {
-      case 'updateTime':
-        break;
-      case 'updateStream':
-        break;
-      default:
-        debugPrint('Unknown method ${call.method} ');
-        throw UnsupportedError('Unsupported method unknown! ${call.method}');
-    }
 
     return Future.value();
   }
