@@ -3,7 +3,6 @@ package tv.mdu1.mdu1_player
 import android.content.Context
 import android.net.Uri
 import android.util.AttributeSet
-import android.util.Log
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.google.android.exoplayer2.*
@@ -37,6 +36,7 @@ class Mdu1UIView : FrameLayout, Player.Listener {
     private lateinit var eventChannel: EventChannel
     private var lastSendBufferedPosition = 0L
     private var isAutoSelected = true
+    private var useAutoInTrackName = false
 
     constructor(context: Context, textureRegistry: TextureRegistry, eventChannel: EventChannel) : super(context) {
         trackSelector = DefaultTrackSelector(context, AdaptiveTrackSelection.Factory())
@@ -69,7 +69,7 @@ class Mdu1UIView : FrameLayout, Player.Listener {
         bandwidthMeter = DefaultBandwidthMeter.Builder(context).build()
         
         player = ExoPlayer.Builder(context).setTrackSelector(trackSelector).build()
-        // player?.addAnalyticsListener(EventLogger(trackSelector))
+//        player?.addAnalyticsListener(EventLogger(trackSelector))
        
         eventChannel.setStreamHandler(
             object  : EventChannel.StreamHandler {
@@ -139,7 +139,11 @@ class Mdu1UIView : FrameLayout, Player.Listener {
         val mediaItem = MediaItem.fromUri(uri)
         return when (Util.inferContentType(url)) {
             C.CONTENT_TYPE_HLS -> {
-                HlsMediaSource.Factory(dataFactory).setAllowChunklessPreparation(false).createMediaSource(mediaItem)
+                val customHlsExtractorFactory = CustomHlsExtractorFactory { data ->
+                    useAutoInTrackName = data
+                }
+
+                HlsMediaSource.Factory(dataFactory).setExtractorFactory(customHlsExtractorFactory).setAllowChunklessPreparation(false).createMediaSource(mediaItem)
             }
             else -> {
                 null
@@ -230,22 +234,26 @@ class Mdu1UIView : FrameLayout, Player.Listener {
                     event.add(data)
                 } else if ((trackFormat.sampleMimeType!!.contains("cea") || trackFormat.sampleMimeType!!.contains("eia")) && index == C.TRACK_TYPE_TEXT) {
                     val data: MutableMap<String, Any> = HashMap();
-                    when (trackFormat.language) {
-                        "en" -> {
-                            data["name"] =  "English"
-                        }
-                        "es" -> {
-                            data["name"] =  "Spanish"
-                        }
-                        else -> {
-                            var label = trackFormat.label;
-                            if(label?.contains("und") == true) {
-                                label = label.replace("und ", "Undefined ")
-                            } else if (label == null) {
-                                label = "Undefined"
+                    if(useAutoInTrackName) {
+                        data["name"] = "Auto"
+                    } else {
+                        when (trackFormat.language) {
+                            "en" -> {
+                                data["name"] =  "English"
                             }
+                            "es" -> {
+                                data["name"] =  "Spanish"
+                            }
+                            else -> {
+                                var label = trackFormat.label;
+                                if(label?.contains("und") == true) {
+                                    label = label.replace("und ", "Undefined ")
+                                } else if (label == null) {
+                                    label = "Undefined"
+                                }
 
-                            data["name"] = label.toString()
+                                data["name"] = label.toString()
+                            }
                         }
                     }
                     data["isSelected"] = it.isSelected
@@ -258,22 +266,26 @@ class Mdu1UIView : FrameLayout, Player.Listener {
                     event.add(data)
                 } else if (trackFormat.sampleMimeType!!.contains("text") && index == C.TRACK_TYPE_TEXT) {
                     val data: MutableMap<String, Any> = HashMap();
-                    when (trackFormat.language) {
-                        "en" -> {
-                            data["name"] =  "English"
-                        }
-                        "es" -> {
-                            data["name"] =  "Spanish"
-                        }
-                        else -> {
-                            var label = trackFormat.label;
-                            if(label?.contains("und") == true) {
-                                label = label.replace("und ", "Undefined ")
-                            } else if (label == null) {
-                                label = "Undefined";
+                    if(useAutoInTrackName) {
+                        data["name"] = "Auto"
+                    } else {
+                        when (trackFormat.language) {
+                            "en" -> {
+                                data["name"] =  "English " + trackFormat.label
                             }
+                            "es" -> {
+                                data["name"] =  "Spanish"
+                            }
+                            else -> {
+                                var label = trackFormat.label;
+                                if(label?.contains("und") == true) {
+                                    label = label.replace("und ", "Undefined ")
+                                } else if (label == null) {
+                                    label = "Undefined";
+                                }
 
-                            data["name"] = label.toString()
+                                data["name"] = label.toString()
+                            }
                         }
                     }
                     data["isSelected"] = it.isSelected
