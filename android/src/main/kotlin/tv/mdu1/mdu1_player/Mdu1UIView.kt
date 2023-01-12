@@ -119,6 +119,7 @@ class Mdu1UIView : FrameLayout, Player.Listener {
             override fun onPlayerError(error: PlaybackException) {
                 val event: MutableMap<String, Any?> = HashMap()
                 event["event"] = "exception"
+                event["errorCodeName"] = error.errorCodeName
                 event["error"] = "[${error.errorCode}] ${error.message}"
                 eventSink.success(event)
 //                eventSink.error("VideoError", "Video player had error $error", "")
