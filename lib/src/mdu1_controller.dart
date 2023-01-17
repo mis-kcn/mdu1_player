@@ -35,9 +35,10 @@ class Mdu1Controller {
     });
   }
 
-  void changeChannel(String url) {
+  void changeChannel(String url, {bool? enableCaptions = false}) {
     _channel?.invokeMethod<void>('updateChannel', {
       'url': url,
+      'enableCaptions': enableCaptions,
     });
   }
 

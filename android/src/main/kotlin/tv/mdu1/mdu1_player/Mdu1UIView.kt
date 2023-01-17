@@ -355,12 +355,28 @@ class Mdu1UIView : FrameLayout, Player.Listener {
         return true
     }
 
-    fun updateChannel(url: String) {
+    fun updateChannel(url: String, enableCaptions: Boolean) {
         videoUrl = url
         player?.pause()
         player?.setMediaSource(buildMediaSource(videoUrl, buildDataSourceFactory(context))!!)
         player?.prepare()
         player?.play()
+
+        if(player != null) {
+            if(!enableCaptions) {
+                player!!.trackSelectionParameters = player!!.trackSelectionParameters
+                    .buildUpon()
+                    .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
+                    .setPreferredTextLanguage("")
+                    .build()
+            } else {
+                player!!.trackSelectionParameters = player!!.trackSelectionParameters
+                    .buildUpon()
+                    .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
+                    .setPreferredTextLanguage("eng")
+                    .build()
+            }
+        }
     }
 
     fun onStart(enableCaptions: Boolean?) {

@@ -51,7 +51,8 @@ class Mdu1View(context: Context, creationParams: Map<String?, Any?>?, messenger:
             }
             "updateChannel" -> {
                 val url: String? = call.argument("url")
-                videoView.updateChannel(url!!)
+                val captionsEnabled: Boolean? = call.argument("enableCaptions")
+                videoView.updateChannel(url!!, captionsEnabled!!)
             }
             "resume" -> {
                 onStart()
