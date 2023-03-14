@@ -3,6 +3,7 @@ package tv.mdu1.mdu1_player
 import android.content.Context
 import android.net.Uri
 import android.util.AttributeSet
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.google.android.exoplayer2.*
@@ -377,6 +378,10 @@ class Mdu1UIView : FrameLayout, Player.Listener {
                     .build()
             }
         }
+    }
+
+    fun updateResizeMode(resizeMode: Int) {
+        mdu1Player.resizeMode = resizeMode
     }
 
     fun onStart(enableCaptions: Boolean?) {

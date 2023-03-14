@@ -35,6 +35,12 @@ class Mdu1Controller {
     });
   }
 
+  void changeResizeMode(String resizeMode) {
+    _channel?.invokeMethod('updateResizeMode', {
+      'resizeMode': resizeMode,
+    });
+  }
+
   void changeChannel(String url, {bool? enableCaptions = false}) {
     _channel?.invokeMethod<void>('updateChannel', {
       'url': url,

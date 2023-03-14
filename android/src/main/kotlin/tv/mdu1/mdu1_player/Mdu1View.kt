@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -119,6 +120,20 @@ class Mdu1View(context: Context, creationParams: Map<String?, Any?>?, messenger:
             }
             "exitApp" -> {
                 android.os.Process.killProcess(android.os.Process.myPid())
+            }
+            "updateResizeMode" -> {
+                val resizeMode: String? = call.argument("resizeMode")
+                var resizeModeParsed = AspectRatioFrameLayout.RESIZE_MODE_FIT
+
+                if(resizeMode == "FIT") {
+                    resizeModeParsed = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                } else if (resizeMode == "ZOOM") {
+                    resizeModeParsed = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+                } else if (resizeMode == "FILL") {
+                    resizeModeParsed = AspectRatioFrameLayout.RESIZE_MODE_FILL
+                }
+
+                videoView.updateResizeMode(resizeModeParsed)
             }
             else -> {
             }
