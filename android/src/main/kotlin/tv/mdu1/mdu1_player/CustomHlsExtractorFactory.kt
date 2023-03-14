@@ -29,7 +29,7 @@ import java.io.IOException
         FileTypes.MP3
     )
 
-    private var payloadReaderFactoryFlags = DefaultTsPayloadReaderFactory.FLAG_IGNORE_SPLICE_INFO_STREAM
+    private var payloadReaderFactoryFlags = DefaultTsPayloadReaderFactory.FLAG_ALLOW_NON_IDR_KEYFRAMES
 
      private fun addFileTypeIfValidAndNotPresent(
         fileType: @FileTypes.Type Int, fileTypes: MutableList<Int>
