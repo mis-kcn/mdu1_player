@@ -100,6 +100,8 @@ class _Mdu1PlayerState extends State<Mdu1Player> with WidgetsBindingObserver {
             creationParams: <String, dynamic>{
               'captions': widget.enableCaptions,
             },
+            hitTestBehavior: PlatformViewHitTestBehavior.transparent,
+            gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
             creationParamsCodec: const StandardMessageCodec(),
           );
   }
