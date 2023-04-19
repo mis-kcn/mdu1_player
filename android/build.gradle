@@ -2,7 +2,7 @@ group 'tv.mdu1.mdu1_player'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.exoPlayerVersion = "2.18.1"
+    ext.exoPlayerVersion = "2.18.3"
     ext.lifecycleVersion = "2.5.1"
     ext.annotationVersion = "1.4.0"
     ext.workVersion = "2.7.1"
@@ -53,6 +53,8 @@ android {
 
     dependencies {
         implementation "com.google.android.exoplayer:exoplayer:$exoPlayerVersion"
+        implementation "com.google.android.exoplayer:extension-cronet:$exoPlayerVersion"
+        implementation "com.google.android.exoplayer:extension-okhttp:$exoPlayerVersion"
         implementation "com.google.android.exoplayer:extension-mediasession:$exoPlayerVersion"
         implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion"
         implementation "androidx.lifecycle:lifecycle-common:$lifecycleVersion"
@@ -60,6 +62,7 @@ android {
         implementation "androidx.annotation:annotation:$annotationVersion"
         implementation "androidx.work:work-runtime:$workVersion"
         implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+        implementation "org.chromium.net:cronet-embedded:108.5359.79"
     }
 }
 

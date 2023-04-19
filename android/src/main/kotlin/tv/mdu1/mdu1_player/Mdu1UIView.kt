@@ -7,7 +7,11 @@ import android.util.Log
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.ext.cronet.CronetDataSource
+import com.google.android.exoplayer2.ext.cronet.CronetUtil
+import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource
 import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.hls.DefaultHlsDataSourceFactory
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
@@ -23,7 +27,10 @@ import com.google.android.exoplayer2.util.EventLogger
 import com.google.android.exoplayer2.util.Util
 import io.flutter.plugin.common.EventChannel
 import io.flutter.view.TextureRegistry
+import okhttp3.OkHttpClient
+import org.chromium.net.CronetEngine
 import java.util.*
+import java.util.concurrent.Executors
 
 
 class Mdu1UIView : FrameLayout, Player.Listener {
@@ -38,21 +45,29 @@ class Mdu1UIView : FrameLayout, Player.Listener {
     private var lastSendBufferedPosition = 0L
     private var isAutoSelected = true
     private var useAutoInTrackName = false
+    private val cronetEngine: CronetEngine?
+    private val okHttpClient: OkHttpClient
 
     constructor(context: Context, textureRegistry: TextureRegistry, eventChannel: EventChannel) : super(context) {
         trackSelector = DefaultTrackSelector(context, AdaptiveTrackSelection.Factory())
         this.textureRegistry = textureRegistry
         this.eventChannel = eventChannel
+        this.cronetEngine = CronetUtil.buildCronetEngine(context)
+        this.okHttpClient = OkHttpClient.Builder().build()
         init()
     }
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         trackSelector = DefaultTrackSelector(context, AdaptiveTrackSelection.Factory())
+        this.cronetEngine = CronetUtil.buildCronetEngine(context)
+        this.okHttpClient = OkHttpClient.Builder().build()
         init()
     }
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
         trackSelector = DefaultTrackSelector(context, AdaptiveTrackSelection.Factory())
+        this.cronetEngine = CronetUtil.buildCronetEngine(context)
+        this.okHttpClient = OkHttpClient.Builder().build()
         init()
     }
 
@@ -118,22 +133,37 @@ class Mdu1UIView : FrameLayout, Player.Listener {
             }
 
             override fun onPlayerError(error: PlaybackException) {
-                val event: MutableMap<String, Any?> = HashMap()
-                event["event"] = "exception"
-                event["errorCodeName"] = error.errorCodeName
-                event["error"] = "[${error.errorCode}] ${error.message}"
-                eventSink.success(event)
-//                eventSink.error("VideoError", "Video player had error $error", "")
+                if (error.errorCode == PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW) {
+                    player?.seekToDefaultPosition();
+                    player?.prepare();
+                } else {
+                    val event: MutableMap<String, Any?> = HashMap()
+                    event["event"] = "exception"
+                    event["errorCodeName"] = error.errorCodeName
+                    event["error"] = "[${error.errorCode}] ${error.message}"
+                    eventSink.success(event)
+
+                    player?.prepare()
+                }
             }
         })
     }
 
     private fun buildDataSourceFactory(context: Context): DataSource.Factory {
-        val defaultHttpFactory = DefaultHttpDataSource.Factory()
-        defaultHttpFactory.setUserAgent(Util.getUserAgent(context, "mdu1_player"))
-        defaultHttpFactory.setTransferListener(bandwidthMeter)
+        return if(cronetEngine != null) {
+            Log.d("tv.mdu1.iptv/player", "using cronet")
+            val cronetFactory = CronetDataSource.Factory(cronetEngine, Executors.newCachedThreadPool())
+            cronetFactory.setUserAgent(Util.getUserAgent(context, "mdu1_player"))
+            cronetFactory.setTransferListener(bandwidthMeter)
+            DefaultDataSource.Factory(context, cronetFactory)
+        } else {
+            Log.d("tv.mdu1.iptv/player", "using okhttp data source")
+            val defaultHttpFactory = OkHttpDataSource.Factory(okHttpClient)
+            defaultHttpFactory.setUserAgent(Util.getUserAgent(context, "mdu1_player"))
+            defaultHttpFactory.setTransferListener(bandwidthMeter)
 
-        return DefaultDataSource.Factory(context, defaultHttpFactory)
+            DefaultDataSource.Factory(context, defaultHttpFactory)
+        }
     }
 
     private fun buildMediaSource(url: String, dataFactory: DataSource.Factory): MediaSource? {
