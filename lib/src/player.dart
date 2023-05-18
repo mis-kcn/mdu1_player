@@ -3,10 +3,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:mdu1_player/src/mdu1_controller.dart';
+import 'package:flutter_vlc_player/flutter_vlc_player.dart';
+import 'package:mdu1_player/mdu1_player.dart';
 
 class Mdu1Player extends StatefulWidget {
-  final Mdu1Controller controller;
+  final PlayerController controller;
   final bool? useAndroidViewSurface;
   final bool enableCaptions;
 
@@ -22,30 +23,27 @@ class Mdu1Player extends StatefulWidget {
 }
 
 class _Mdu1PlayerState extends State<Mdu1Player> with WidgetsBindingObserver {
-  bool isPlatformChannel = false;
+  Widget? _vlcPlayerWidget;
+  Widget? _exoPlayerWidget;
 
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
     super.initState();
-    Future.delayed(const Duration(milliseconds: 250), () {
-      setState(() {
-        isPlatformChannel = true;
-      });
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return isPlatformChannel == true ? _getAndroidView() : Container();
-    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-      throw UnsupportedError('This platform is unsupported for playback!');
+    if (widget.controller is MduVlcController) {
+      return _getVlcView();
+    } else if (widget.controller is Mdu1Controller) {
+      return _getAndroidView();
     }
 
     return Center(
       child: Text(
-          '$defaultTargetPlatform is not supported by the Mdu1_view plugin'),
+        '$defaultTargetPlatform is not supported by the Mdu1_view plugin',
+      ),
     );
   }
 
@@ -59,8 +57,25 @@ class _Mdu1PlayerState extends State<Mdu1Player> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  Widget _getVlcView() {
+    if (_vlcPlayerWidget != null) {
+      return _vlcPlayerWidget!;
+    }
+
+    _vlcPlayerWidget = VlcPlayer(
+      controller: (widget.controller as MduVlcController).controller,
+      aspectRatio: (widget.controller as MduVlcController).aspectRatio,
+    );
+
+    return _vlcPlayerWidget!;
+  }
+
   Widget _getAndroidView() {
-    return widget.useAndroidViewSurface == true
+    if (_exoPlayerWidget != null) {
+      return _exoPlayerWidget!;
+    }
+
+    _exoPlayerWidget = widget.useAndroidViewSurface == true
         ? PlatformViewLink(
             viewType: 'mdu1_player',
             surfaceFactory: (
@@ -104,5 +119,7 @@ class _Mdu1PlayerState extends State<Mdu1Player> with WidgetsBindingObserver {
             gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
             creationParamsCodec: const StandardMessageCodec(),
           );
+
+    return _exoPlayerWidget!;
   }
 }

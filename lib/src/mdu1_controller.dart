@@ -2,9 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:mdu1_player/src/player_controller.dart';
 import 'package:mdu1_player/src/track_type_enum.dart';
 
-class Mdu1Controller {
+class Mdu1Controller implements PlayerController {
   final String initialUrl;
   Mdu1Controller(this.initialUrl);
 
@@ -15,10 +16,11 @@ class Mdu1Controller {
   MethodChannel? _channel;
   EventChannel? _eventChannel;
 
-  void initialize(int textureId) {
+  @override
+  void initialize(int? textureId) {
     _channel = MethodChannel('mdu1_player_$textureId');
 
-    _channel?.setMethodCallHandler(_handleMethodCalls);
+    _channel?.setMethodCallHandler(handleMethodCalls);
 
     _controller.sink.add({
       'event': 'initialized',
@@ -35,12 +37,14 @@ class Mdu1Controller {
     });
   }
 
+  @override
   void changeResizeMode(String resizeMode) {
     _channel?.invokeMethod('updateResizeMode', {
       'resizeMode': resizeMode,
     });
   }
 
+  @override
   void changeChannel(String url, {bool? enableCaptions = false}) {
     _channel?.invokeMethod<void>('updateChannel', {
       'url': url,
@@ -48,17 +52,21 @@ class Mdu1Controller {
     });
   }
 
+  @override
   Future<void> pause() async {
     return _channel?.invokeMethod<void>('pause');
   }
 
+  @override
   Future<void> play() async {
     return _channel?.invokeMethod<void>('play');
   }
 
-  Future<dynamic> _handleMethodCalls(MethodCall call) async {
+  @override
+  Future<dynamic> handleMethodCalls(MethodCall? call) async {
+    assert(call != null);
     _controller.sink.add({
-      'event': call.method,
+      'event': call!.method,
       'data': call.arguments.toString(),
       'status': 'success'
     });
@@ -66,6 +74,7 @@ class Mdu1Controller {
     return Future.value();
   }
 
+  @override
   Future<dynamic> getTracks(TrackType type) async {
     switch (type) {
       case TrackType.video:
@@ -77,6 +86,7 @@ class Mdu1Controller {
     }
   }
 
+  @override
   Future<dynamic> selectTrack(
     TrackType type,
     int trackGroupIndex,
@@ -102,6 +112,7 @@ class Mdu1Controller {
     });
   }
 
+  @override
   Future<void> dispose() async {
     try {
       await _channel?.invokeMethod<void>('dispose');
