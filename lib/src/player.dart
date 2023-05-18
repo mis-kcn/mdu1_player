@@ -22,15 +22,9 @@ class Mdu1Player extends StatefulWidget {
   State<Mdu1Player> createState() => _Mdu1PlayerState();
 }
 
-class _Mdu1PlayerState extends State<Mdu1Player> with WidgetsBindingObserver {
+class _Mdu1PlayerState extends State<Mdu1Player> {
   Widget? _vlcPlayerWidget;
   Widget? _exoPlayerWidget;
-
-  @override
-  void initState() {
-    WidgetsBinding.instance.addObserver(this);
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,12 +43,6 @@ class _Mdu1PlayerState extends State<Mdu1Player> with WidgetsBindingObserver {
 
   void _onPlatformViewCreated(int id) {
     widget.controller.initialize(id);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
   }
 
   Widget _getVlcView() {
