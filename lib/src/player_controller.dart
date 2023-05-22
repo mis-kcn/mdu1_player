@@ -17,7 +17,7 @@ abstract class PlayerController {
 
   Future<dynamic> handleMethodCalls(MethodCall? call);
 
-  Future<dynamic> getTracks(TrackType type);
+  Future<List<TrackData>> getTracks(TrackType type);
 
   Future<dynamic> selectTrack(
     TrackType type,

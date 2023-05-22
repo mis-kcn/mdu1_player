@@ -2,8 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:mdu1_player/src/player_controller.dart';
-import 'package:mdu1_player/src/track_type_enum.dart';
+import 'package:mdu1_player/mdu1_player.dart';
 
 class Mdu1Controller implements PlayerController {
   final String initialUrl;
@@ -75,14 +74,57 @@ class Mdu1Controller implements PlayerController {
   }
 
   @override
-  Future<dynamic> getTracks(TrackType type) async {
+  Future<List<TrackData>> getTracks(TrackType type) async {
     switch (type) {
       case TrackType.video:
-        return _channel?.invokeMethod<void>('getVideoTracks');
+        final tracks =
+            await _channel?.invokeMethod<List<Object?>>('getVideoTracks');
+
+        return tracks!.map(
+          (e) {
+            e = e as Map<dynamic, dynamic>;
+            return TrackData(
+              type: TrackType.video,
+              name: e['name'],
+              id: e['trackIndex'],
+              selected: e['isSelected'] == true,
+              trackGroupIndex: e['trackGroupIndex'],
+            );
+          },
+        ).toList();
+
       case TrackType.audio:
-        return _channel?.invokeMethod<void>('getAudioTracks');
+        final tracks =
+            await _channel?.invokeMethod<List<Object?>>('getAudioTracks');
+
+        return tracks!.map(
+          (e) {
+            e = e as Map<dynamic, dynamic>;
+            return TrackData(
+              type: TrackType.audio,
+              name: e['name'],
+              id: e['trackIndex'],
+              selected: e['isSelected'] == true,
+              trackGroupIndex: e['trackGroupIndex'],
+            );
+          },
+        ).toList();
       case TrackType.captions:
-        return _channel?.invokeMethod<void>('getCaptions');
+        final tracks =
+            await _channel?.invokeMethod<List<Object?>>('getCaptions');
+
+        return tracks!.map(
+          (e) {
+            e = e as Map<dynamic, dynamic>;
+            return TrackData(
+              type: TrackType.captions,
+              name: e['name'],
+              id: e['trackIndex'],
+              selected: e['isSelected'] == true,
+              trackGroupIndex: e['trackGroupIndex'],
+            );
+          },
+        ).toList();
     }
   }
 

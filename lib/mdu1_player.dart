@@ -5,3 +5,4 @@ export 'src/player.dart';
 export 'src/track_type_enum.dart';
 export 'src/player_controller.dart';
 export 'src/mdu_vlc_controller.dart';
+export 'src/track_data.dart';
