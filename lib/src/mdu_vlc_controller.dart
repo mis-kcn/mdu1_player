@@ -58,10 +58,48 @@ class MduVlcController implements PlayerController {
   Future<List<TrackData>> getTracks(TrackType type) async {
     switch (type) {
       case TrackType.video:
-        final selected = await controller.getVideoTrack();
-        final tracks = await controller.getVideoTracks();
+        try {
+          final selected = await controller.getVideoTrack();
+          final tracks = await controller.getVideoTracks();
 
-        if (tracks.isEmpty) {
+          if (tracks.isEmpty) {
+            return [
+              TrackData(
+                type: TrackType.video,
+                name: 'Auto',
+                id: -1,
+                selected: true,
+              )
+            ];
+          }
+
+          var sortedByValueMap = Map.fromEntries(tracks.entries.toList()
+            ..sort((e1, e2) => e1.value.compareTo(e2.value)));
+
+          var parsedTracks = sortedByValueMap.entries
+              .map(
+                (e) => TrackData(
+                  type: TrackType.video,
+                  name: e.value,
+                  id: e.key,
+                  selected: selected == e.key,
+                ),
+              )
+              .toList();
+
+          if (parsedTracks.length == 1) {
+            parsedTracks = [
+              TrackData(
+                type: TrackType.video,
+                name: 'Auto',
+                id: parsedTracks.first.id,
+                selected: true,
+              )
+            ];
+          }
+
+          return parsedTracks;
+        } catch (e) {
           return [
             TrackData(
               type: TrackType.video,
@@ -71,39 +109,50 @@ class MduVlcController implements PlayerController {
             )
           ];
         }
-
-        var sortedByValueMap = Map.fromEntries(tracks.entries.toList()
-          ..sort((e1, e2) => e1.value.compareTo(e2.value)));
-
-        var parsedTracks = sortedByValueMap.entries
-            .map(
-              (e) => TrackData(
-                type: TrackType.video,
-                name: e.value,
-                id: e.key,
-                selected: selected == e.key,
-              ),
-            )
-            .toList();
-
-        if (parsedTracks.length == 1) {
-          parsedTracks = [
-            TrackData(
-              type: TrackType.video,
-              name: 'Auto',
-              id: parsedTracks.first.id,
-              selected: true,
-            )
-          ];
-        }
-
-        return parsedTracks;
 
       case TrackType.audio:
-        final selected = await controller.getAudioTrack();
-        final tracks = await controller.getAudioTracks();
+        try {
+          final selected = await controller.getAudioTrack();
+          final tracks = await controller.getAudioTracks();
 
-        if (tracks.isEmpty) {
+          if (tracks.isEmpty) {
+            return [
+              TrackData(
+                type: TrackType.audio,
+                name: 'Auto',
+                id: -1,
+                selected: true,
+              )
+            ];
+          }
+
+          var sortedByValueMap = Map.fromEntries(tracks.entries.toList()
+            ..sort((e1, e2) => e1.value.compareTo(e2.value)));
+
+          var parsedTracks = sortedByValueMap.entries
+              .map(
+                (e) => TrackData(
+                  type: TrackType.video,
+                  name: _formatAudioName(e.value),
+                  id: e.key,
+                  selected: selected == e.key,
+                ),
+              )
+              .toList();
+
+          if (parsedTracks.length == 1) {
+            parsedTracks = [
+              TrackData(
+                type: TrackType.audio,
+                name: 'Auto',
+                id: parsedTracks.first.id,
+                selected: true,
+              )
+            ];
+          }
+
+          return parsedTracks;
+        } catch (e) {
           return [
             TrackData(
               type: TrackType.audio,
@@ -114,62 +163,46 @@ class MduVlcController implements PlayerController {
           ];
         }
 
-        var sortedByValueMap = Map.fromEntries(tracks.entries.toList()
-          ..sort((e1, e2) => e1.value.compareTo(e2.value)));
+      case TrackType.captions:
+        try {
+          final selected = await controller.getSpuTrack();
+          final fetchedTracks = (await controller.getSpuTracks());
+          var sortedByValueMap = Map.fromEntries(fetchedTracks.entries.toList()
+            ..sort((e1, e2) => e1.value.compareTo(e2.value)));
 
-        var parsedTracks = sortedByValueMap.entries
-            .map(
-              (e) => TrackData(
-                type: TrackType.video,
-                name: _formatAudioName(e.value),
+          final tracks = <int, String>{
+            ...{
+              -1: 'Off',
+            },
+            ...sortedByValueMap,
+          };
+
+          final parsedTracks = tracks.entries.map(
+            (e) {
+              final name = e.value.toLowerCase().contains('closed captions 1')
+                  ? 'English'
+                  : e.value;
+
+              return TrackData(
+                type: TrackType.captions,
+                name: name,
                 id: e.key,
                 selected: selected == e.key,
-              ),
-            )
-            .toList();
+              );
+            },
+          ).toList();
 
-        if (parsedTracks.length == 1) {
-          parsedTracks = [
+          return parsedTracks;
+        } catch (e) {
+          return [
             TrackData(
-              type: TrackType.audio,
-              name: 'Auto',
-              id: parsedTracks.first.id,
+              type: TrackType.captions,
+              name: 'Off',
+              id: -1,
               selected: true,
-            )
+            ),
           ];
         }
-
-        return parsedTracks;
-
-      case TrackType.captions:
-        final selected = await controller.getSpuTrack();
-        final fetchedTracks = (await controller.getSpuTracks());
-        var sortedByValueMap = Map.fromEntries(fetchedTracks.entries.toList()
-          ..sort((e1, e2) => e1.value.compareTo(e2.value)));
-
-        final tracks = <int, String>{
-          ...{
-            -1: 'Off',
-          },
-          ...sortedByValueMap,
-        };
-
-        final parsedTracks = tracks.entries.map(
-          (e) {
-            final name = e.value.toLowerCase().contains('closed captions 1')
-                ? 'English'
-                : e.value;
-
-            return TrackData(
-              type: TrackType.captions,
-              name: name,
-              id: e.key,
-              selected: selected == e.key,
-            );
-          },
-        ).toList();
-
-        return parsedTracks;
     }
   }
 
