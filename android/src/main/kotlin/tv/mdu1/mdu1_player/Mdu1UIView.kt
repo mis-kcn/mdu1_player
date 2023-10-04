@@ -255,7 +255,7 @@ class Mdu1UIView : FrameLayout, Player.Listener {
                     event.add(data)
                 } else if (trackFormat.sampleMimeType!!.contains("video") && index == C.TRACK_TYPE_VIDEO) {
                     val data: MutableMap<String, Any> = HashMap();
-                    data["name"] = trackFormat.width.toString() + " x " + trackFormat.height.toString() + "\t\t" + (trackFormat.bitrate / 1024 / 1024).toString() + " Mbps"
+                    data["name"] = trackFormat.width.toString() + " x " + trackFormat.height.toString() + "\t\t" + "%.2f Mbps".format((trackFormat.bitrate.toFloat() / (1 shl 20)).toFloat())
                     if(isAutoSelected) {
                         data["isSelected"] = false
                     } else {

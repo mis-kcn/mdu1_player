@@ -1,10 +1,10 @@
 name: mdu1_player
 description: A new Flutter plugin project.
-version: 1.4.1
+version: 1.4.3
 homepage:
 
 environment:
-  sdk: ">=2.17.6 <3.0.0"
+  sdk: ">=2.17.6"
   flutter: ">=2.5.0"
 
 dependencies:
