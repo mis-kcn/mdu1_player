@@ -394,19 +394,27 @@ class Mdu1UIView : FrameLayout, Player.Listener {
         player?.play()
 
         if(player != null) {
+            val channelChangeEvent: MutableMap<String, Any> = HashMap()
+            channelChangeEvent["event"] = "channelUpdated"
+
             if(!enableCaptions) {
                 player!!.trackSelectionParameters = player!!.trackSelectionParameters
                     .buildUpon()
                     .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
                     .setPreferredTextLanguage("")
                     .build()
+                channelChangeEvent["captions"] = "0"
             } else {
                 player!!.trackSelectionParameters = player!!.trackSelectionParameters
                     .buildUpon()
                     .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
                     .setPreferredTextLanguage("eng")
                     .build()
+                channelChangeEvent["captions"] = "1"
             }
+
+            channelChangeEvent["url"] = videoUrl
+            eventSink.success(channelChangeEvent)
         }
     }
 
