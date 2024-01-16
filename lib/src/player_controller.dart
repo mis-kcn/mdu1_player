@@ -26,4 +26,7 @@ abstract class PlayerController {
   );
 
   Future<void> dispose();
+
+  String? streamUrl;
+  bool? enableCaptions;
 }

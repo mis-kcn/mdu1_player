@@ -1,6 +1,6 @@
 name: mdu1_player
 description: A new Flutter plugin project.
-version: 1.4.7
+version: 1.5.3
 homepage:
 
 environment:
@@ -12,6 +12,7 @@ dependencies:
     sdk: flutter
   flutter_vlc_player: ^7.2.0
   plugin_platform_interface: ^2.0.2
+  rxdart: ^0.27.7
 
 dev_dependencies:
   flutter_test:

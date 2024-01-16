@@ -3,12 +3,19 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:mdu1_player/mdu1_player.dart';
+import 'package:rxdart/rxdart.dart';
 
 class Mdu1Controller implements PlayerController {
+  @override
+  String? streamUrl;
+
+  @override
+  bool? enableCaptions;
+
   final String initialUrl;
   Mdu1Controller(this.initialUrl);
 
-  final _controller = StreamController<Map<String, dynamic>>();
+  final _controller = BehaviorSubject<Map<String, dynamic>>();
   Stream<Map<String, dynamic>> get stream =>
       _controller.stream.asBroadcastStream();
 
@@ -17,6 +24,7 @@ class Mdu1Controller implements PlayerController {
 
   @override
   void initialize(int? textureId) {
+    streamUrl = initialUrl;
     _channel = MethodChannel('mdu1_player_$textureId');
 
     _channel?.setMethodCallHandler(handleMethodCalls);
@@ -45,6 +53,9 @@ class Mdu1Controller implements PlayerController {
 
   @override
   void changeChannel(String url, {bool? enableCaptions = false}) {
+    streamUrl = url;
+    this.enableCaptions = enableCaptions;
+    
     _channel?.invokeMethod<void>('updateChannel', {
       'url': url,
       'enableCaptions': enableCaptions,

@@ -250,4 +250,10 @@ class MduVlcController implements PlayerController {
         return controller.setSpuTrack(trackIndex);
     }
   }
+  
+  @override
+  String? streamUrl;
+  
+  @override
+  bool? enableCaptions;
 }
